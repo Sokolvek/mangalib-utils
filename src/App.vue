@@ -2,30 +2,33 @@
 import { onMounted, ref } from "vue"
 import data from "../json-fixer.json"
 
-let origCollections = ref()
+let origCollections = []
 let collections = ref()
 let search = ref("")
 let all = []
+let colls = []
 
 const collectionNames = []
 onMounted(async () => {
+
   getCollectionsNames(collectionNames)
   data.forEach((val) => all.push(...val.data))
   let removed = removeDuplicates()
-  origCollections = removed
-  collections.value = removed
-  // let i = 0
-  // setInterval(async () => {
-  //   if (i == 100)
-  //     return
-  //   let data = await getNPageCollection(i)
-  //   collections.value.push(data)
-  //   test.push(data)
-  //   console.log(test, collections.value)
-  //   i++
-  // },163)
-  // downloadText(collections.value.data)
+  colls = await getCollections()
+  origCollections = colls
+
+  collections.value = colls
+
 })
+
+async function getCollections() {
+  const resp = await fetch(`http://194.87.92.170:3000/mangalib`,
+    {
+      mode:"cors"
+    })
+  const res = await resp.json()
+  return res
+}
 
 function removeDuplicates() {
   const res = []
@@ -86,7 +89,6 @@ function handleSearch() {
   }
 
   collections.value = collections.value.filter((col) => {
-    console.log(col.name.toLowerCase())
     return col.name.toLowerCase().includes(search.value.toLocaleLowerCase())
   })
 }
@@ -113,6 +115,7 @@ function handleSearch() {
         </button>
       </div>
     </div>
+    <button v-if="search == ''" @click="goTo('https://youtu.be/dQw4w9WgXcQ?si=ZMPliRDojhIviqYv')">slash lib</button>
   </div>
 </template>
 
